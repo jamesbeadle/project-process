@@ -9,8 +9,9 @@
 #   --repo <path>      the repository to install into (default: the git root of the current directory)
 #   --kit <path>       a local checkout of the kit (default: a shallow clone of the kit repository)
 #   --stack <name>     dotnet-blazor | sveltekit | generic (default: detected from the repository)
-#   --branch <name>    the default branch the audit and the cadence watch (default: detected, else main)
+#   --branch <name>    the default branch the cadence counts on (default: detected, else main)
 #   --check            change nothing; exit 1 if anything would change (drift from the kit)
+#   --with-ci-gate     also install the code-audit GitHub workflow (nothing runs on GitHub without it)
 #   --with-migration-gate  also install the Builder's migration-gate workflow
 set -euo pipefail
 
@@ -20,6 +21,7 @@ KIT=""
 STACK=""
 DEFAULT_BRANCH=""
 IS_CHECK_ONLY="no"
+WITH_CI_GATE="no"
 WITH_MIGRATION_GATE="no"
 CHANGED_COUNT=0
 
@@ -30,6 +32,7 @@ while [ $# -gt 0 ]; do
     --stack) STACK="$2"; shift 2 ;;
     --branch) DEFAULT_BRANCH="$2"; shift 2 ;;
     --check) IS_CHECK_ONLY="yes"; shift ;;
+    --with-ci-gate) WITH_CI_GATE="yes"; shift ;;
     --with-migration-gate) WITH_MIGRATION_GATE="yes"; shift ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
@@ -104,22 +107,29 @@ installRefactorKit() {
   done
   writeIfDifferent "$KIT/kit/refactor/README.md" "$target/README.md"
   writeIfDifferent "$KIT/kit/refactor/playbook.md" "$target/playbook.md"
+  writeIfDifferent "$KIT/kit/refactor/deploys_since_baseline.sh" "$target/deploys_since_baseline.sh"
+  chmod +x "$target/deploys_since_baseline.sh" 2>/dev/null || true
   writeIfDifferent "$KIT/VERSION" "$target/kit-version"
   writeOnce "$KIT/kit/refactor/presets/$STACK.json" "$target/rules.json"
 }
 
-installWorkflow() {
-  local rendered; rendered="$(mktemp)"
-  sed "s/__DEFAULT_BRANCH__/$DEFAULT_BRANCH/g" "$KIT/kit/workflows/code-audit.yml" > "$rendered"
-  writeIfDifferent "$rendered" "$REPOSITORY/.github/workflows/code-audit.yml"
-  rm -f "$rendered"
+installWorkflows() {
+  if [ "$WITH_CI_GATE" = "yes" ]; then
+    local rendered; rendered="$(mktemp)"
+    sed "s/__DEFAULT_BRANCH__/$DEFAULT_BRANCH/g" "$KIT/kit/workflows/code-audit.yml" > "$rendered"
+    writeIfDifferent "$rendered" "$REPOSITORY/.github/workflows/code-audit.yml"
+    rm -f "$rendered"
+  fi
   if [ "$WITH_MIGRATION_GATE" = "yes" ]; then
     writeIfDifferent "$KIT/kit/workflows/migration-gate.yml" "$REPOSITORY/.github/workflows/migration-gate.yml"
   fi
 }
 
 installSkills() {
-  writeIfDifferent "$KIT/kit/skills/refactor-round/SKILL.md" "$REPOSITORY/.claude/skills/refactor-round/SKILL.md"
+  local skill
+  for skill in $(cd "$KIT/kit/skills" && ls -d */ | tr -d /); do
+    writeIfDifferent "$KIT/kit/skills/$skill/SKILL.md" "$REPOSITORY/.claude/skills/$skill/SKILL.md"
+  done
 }
 
 establishBaseline() {
@@ -137,11 +147,11 @@ establishBaseline() {
 
 printNextSteps() {
   say ""
-  say "Next, in Your Business Today (once per repository):"
-  say "  1. Record the repository URL on the project (set_project_client or the project's Edit form)."
-  say "  2. Point the repository's GitHub webhook at <ybt>/api/github-webhook with the shared secret,"
-  say "     sending pull request AND push events — pushes to '$DEFAULT_BRANCH' are the deploys the cadence counts."
-  say "  3. Set 'Refactor every N deploys' on the project (default 10; 0 turns the cadence off)."
+  say "Next: commit what was written. Nothing runs on GitHub — the audit, the gate and the round are the"
+  say "Claude scripts in .claude/skills (refactor-round, end-of-day); tools/refactor/deploys_since_baseline.sh"
+  say "says when a round is due. Optionally, in Your Business Today: record the repository URL and the"
+  say "default branch ('$DEFAULT_BRANCH') on the project and send push events to its GitHub webhook, and it"
+  say "raises 'REFACTOR: round N' on the project as the reminder every N deploys."
 }
 
 main() {
@@ -152,7 +162,7 @@ main() {
   say "project-process kit v$(cat "$KIT/VERSION") → $REPOSITORY (stack: $STACK, default branch: $DEFAULT_BRANCH)"
   installClaudeBlock
   installRefactorKit
-  installWorkflow
+  installWorkflows
   installSkills
   establishBaseline
   if [ "$IS_CHECK_ONLY" = "yes" ]; then
