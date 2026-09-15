@@ -1,0 +1,41 @@
+# The one thing the Builder may not do on its own: change the schema.
+# Passes when no migration file changed. When one did, passes only once a
+# person has read it, applied it to the live database, and added the
+# migration-reviewed label. Branch protection on main requires this check.
+name: migration-gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+env:
+  MIGRATION_PATHS: migrations supabase/migrations
+  REVIEWED_LABEL: migration-reviewed
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Refuse an unreviewed migration
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          set -euo pipefail
+          changed=$(git diff --name-only "origin/${BASE_REF}...HEAD" -- ${MIGRATION_PATHS} || true)
+          if [ -z "${changed}" ]; then
+            echo "No migration files changed."
+            exit 0
+          fi
+          echo "Migration files changed:"
+          echo "${changed}"
+          case ",${LABELS}," in
+            *",${REVIEWED_LABEL},"*)
+              echo "Label ${REVIEWED_LABEL} is present. A person has reviewed and applied it."
+              exit 0 ;;
+          esac
+          echo "::error::This pull request changes the schema. Read the SQL, apply it to the live database, then add the ${REVIEWED_LABEL} label."
+          exit 1

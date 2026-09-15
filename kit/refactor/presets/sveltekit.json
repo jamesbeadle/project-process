@@ -1,0 +1,61 @@
+{
+  "sourceGlobs": [
+    "src/**/*.ts",
+    "src/**/*.svelte"
+  ],
+  "excludeGlobs": [
+    "**/node_modules/**",
+    "**/.svelte-kit/**",
+    "**/*.d.ts",
+    "**/_to_delete/**"
+  ],
+  "maxFileLines": 100,
+  "maxFunctionLines": 30,
+  "fileLengthExemptGlobs": [
+    "src/app.d.ts",
+    "src/lib/data/legal/**"
+  ],
+  "booleanPrefixes": ["is", "has", "should", "can", "was", "will", "must", "allows"],
+  "bannedAbbreviations": [
+    "usr", "btn", "cfg", "tmp", "req", "res", "ctx", "idx", "err", "msg", "num", "val", "cnt", "arr", "obj2", "fn"
+  ],
+  "commentMarkers": {
+    "line": "//",
+    "documentation": ["/**", "*", "*/"],
+    "markup": "<!--"
+  },
+  "duplication": {
+    "minTokens": 70,
+    "ignoreGlobs": ["**/node_modules/**", "**/.svelte-kit/**", "**/migrations/**"]
+  },
+  "inventory": {
+    "pagesGlob": "src/routes/**/+page.svelte",
+    "componentsGlob": "src/lib/components/**/*.svelte",
+    "widgetMarkers": {
+      "table": "<table",
+      "modal": "Modal",
+      "form": "<form",
+      "submit": "SubmitButton",
+      "error": "FormErrorNote",
+      "list": "{#each",
+      "badge": "Badge",
+      "pill": "Pill"
+    }
+  },
+  "styleTokens": {
+    "markupGlobs": ["src/**/*.svelte", "src/**/*.css"],
+    "forbidInlineHexColours": true,
+    "forbidInlineStyleAttributes": true
+  },
+  "prose": {
+    "maxMemberAccessesPerLine": 3,
+    "maxLineLength": 160,
+    "maxIndentDepth": 5,
+    "indentWidth": 4,
+    "indentedFileGlobs": ["src/**/*.ts", "src/**/*.svelte"]
+  },
+  "functionNames": {
+    "maxWords": 5,
+    "maxLength": 40
+  }
+}

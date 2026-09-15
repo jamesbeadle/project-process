@@ -1,0 +1,68 @@
+{
+  "sourceGlobs": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.py",
+    "**/*.cs",
+    "**/*.go",
+    "**/*.java",
+    "**/*.kt",
+    "**/*.swift",
+    "**/*.rb",
+    "**/*.php"
+  ],
+  "excludeGlobs": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/bin/**",
+    "**/obj/**",
+    "**/vendor/**",
+    "**/.venv/**",
+    "**/venv/**",
+    "**/migrations/**",
+    "**/Migrations/**",
+    "**/*.min.js",
+    "**/*.d.ts",
+    "**/_to_delete/**"
+  ],
+  "maxFileLines": 100,
+  "maxFunctionLines": 30,
+  "fileLengthExemptGlobs": [],
+  "booleanPrefixes": ["is", "has", "should", "can", "was", "will", "must", "allows"],
+  "bannedAbbreviations": [
+    "usr", "btn", "cfg", "tmp", "req", "res", "ctx", "idx", "err", "msg", "num", "val", "cnt", "arr", "obj2", "fn"
+  ],
+  "commentMarkers": {
+    "line": ["//", "#"],
+    "documentation": ["///", "/**", "*", "*/", "\"\"\"", "#!"],
+    "markup": "<!--"
+  },
+  "duplication": {
+    "minTokens": 70,
+    "ignoreGlobs": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/bin/**", "**/obj/**", "**/vendor/**"]
+  },
+  "inventory": {
+    "pagesGlob": "",
+    "componentsGlob": "",
+    "widgetMarkers": {}
+  },
+  "styleTokens": {
+    "markupGlobs": ["**/*.html", "**/*.css", "**/*.tsx", "**/*.jsx"],
+    "forbidInlineHexColours": true,
+    "forbidInlineStyleAttributes": true
+  },
+  "prose": {
+    "maxMemberAccessesPerLine": 3,
+    "maxLineLength": 160,
+    "maxIndentDepth": 5,
+    "indentWidth": 4,
+    "indentedFileGlobs": ["**/*"]
+  },
+  "functionNames": {
+    "maxWords": 5,
+    "maxLength": 40
+  }
+}
