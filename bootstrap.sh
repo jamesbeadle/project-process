@@ -13,9 +13,13 @@
 #   --check            change nothing; exit 1 if anything would change (drift from the kit)
 #   --with-ci-gate     also install the code-audit GitHub workflow (nothing runs on GitHub without it)
 #   --with-migration-gate  also install the Builder's migration-gate workflow
+#
+# Every run also installs the branch guard: tools/branch_guard/, registered as a Claude Code
+# PreToolUse hook in .claude/settings.json, so no Claude session commits to the default branch.
 set -euo pipefail
 
 KIT_REPOSITORY="https://github.com/jamesbeadle/project-process"
+BRANCH_GUARD_COMMAND='python3 "${CLAUDE_PROJECT_DIR:-.}/tools/branch_guard"'
 REPOSITORY=""
 KIT=""
 STACK=""
@@ -132,6 +136,21 @@ installSkills() {
   done
 }
 
+installBranchGuard() {
+  local file
+  for file in $(cd "$KIT/kit/hooks/branch_guard" && ls *.py | sort); do
+    writeIfDifferent "$KIT/kit/hooks/branch_guard/$file" "$REPOSITORY/tools/branch_guard/$file"
+  done
+  local mode=""; [ "$IS_CHECK_ONLY" = "yes" ] && mode="check"
+  local outcome; outcome="$(python3 "$KIT/tools/managed_settings.py" "$REPOSITORY/.claude/settings.json" "$BRANCH_GUARD_COMMAND" $mode)"
+  case "$outcome" in
+    error:*) say "  $outcome"; exit 1 ;;
+    unchanged) ;;
+    *) noteChange; [ "$IS_CHECK_ONLY" = "yes" ] && outcome="would-$outcome" ;;
+  esac
+  report "$outcome" "$REPOSITORY/.claude/settings.json"
+}
+
 establishBaseline() {
   local target="$REPOSITORY/tools/refactor"
   if [ -f "$target/baseline.json" ]; then report kept "$target/baseline.json"; return; fi
@@ -147,11 +166,14 @@ establishBaseline() {
 
 printNextSteps() {
   say ""
-  say "Next: commit what was written. Nothing runs on GitHub — the audit, the gate and the round are the"
-  say "Claude scripts in .claude/skills (refactor-round, end-of-day); tools/refactor/deploys_since_baseline.sh"
-  say "says when a round is due. Optionally, in Your Business Today: record the repository URL and the"
-  say "default branch ('$DEFAULT_BRANCH') on the project and send push events to its GitHub webhook, and it"
-  say "raises 'REFACTOR: round N' on the project as the reminder every N deploys."
+  say "Next: commit what was written on a branch (git switch -c feature/project-process-$(cat "$KIT/VERSION")),"
+  say "push it and open the pull request into '$DEFAULT_BRANCH' — from now on nothing lands on '$DEFAULT_BRANCH'"
+  say "from a Claude session except by a pull request: the block in CLAUDE.md says so and the hook in"
+  say ".claude/settings.json (tools/branch_guard) refuses a commit or push that would. Nothing runs on"
+  say "GitHub — the audit, the gate and the round are the Claude scripts in .claude/skills (refactor-round,"
+  say "end-of-day); tools/refactor/deploys_since_baseline.sh says when a round is due. Optionally, in Your"
+  say "Business Today: record the repository URL and the default branch ('$DEFAULT_BRANCH') on the project and"
+  say "send push events to its GitHub webhook, and it raises 'REFACTOR: round N' on the project as the reminder."
 }
 
 main() {
@@ -164,6 +186,7 @@ main() {
   installRefactorKit
   installWorkflows
   installSkills
+  installBranchGuard
   establishBaseline
   if [ "$IS_CHECK_ONLY" = "yes" ]; then
     if [ "$CHANGED_COUNT" -gt 0 ]; then say "Drift: $CHANGED_COUNT item(s) differ from the kit."; exit 1; fi
