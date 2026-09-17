@@ -57,5 +57,26 @@
   "functionNames": {
     "maxWords": 5,
     "maxLength": 40
+  },
+  "areas": [
+    {"name": "tests", "globs": ["**/*.test.*", "**/*.spec.*", "**/tests/**", "**/Tests/**", "**/*.Tests/**", "**/*Tests.cs"]},
+    {"name": "docs", "globs": ["**/*.md", "docs/**"]},
+    {"name": "tooling", "globs": ["tools/**", ".claude/**", "scripts/**"]},
+    {"name": "database", "globs": ["supabase/**", "**/migrations/**", "**/*.sql"]},
+    {"name": "api", "globs": ["src/routes/**/+server.*", "src/routes/api/**", "src/lib/server/mcp/**"]},
+    {"name": "backend", "globs": ["src/lib/server/**", "src/**/*.server.*", "src/hooks*"]},
+    {"name": "frontend", "globs": ["src/**/*.svelte", "src/**/*.css", "src/lib/components/**", "src/app.html", "static/**"]},
+    {"name": "shared", "globs": ["src/lib/**", "src/**/*.ts"]},
+    {"name": "infrastructure", "globs": [".github/**", "*.config.*", "*.json", "*.yml", "*.yaml", ".*"]}
+  ],
+  "designPatterns": {
+    "entityGlobs": ["src/lib/types/**/*.ts", "src/lib/entities/**/*.ts", "src/lib/domain/**/*.ts"],
+    "minimumFamilySize": 4,
+    "cooccurrenceThreshold": 0.75,
+    "fileCountBand": 2.0,
+    "acceptedGaps": []
+  },
+  "score": {
+    "elements": {}
   }
 }

@@ -114,7 +114,18 @@ installRefactorKit() {
   writeIfDifferent "$KIT/kit/refactor/deploys_since_baseline.sh" "$target/deploys_since_baseline.sh"
   chmod +x "$target/deploys_since_baseline.sh" 2>/dev/null || true
   writeIfDifferent "$KIT/VERSION" "$target/kit-version"
-  writeOnce "$KIT/kit/refactor/presets/$STACK.json" "$target/rules.json"
+  installRules "$KIT/kit/refactor/presets/$STACK.json" "$target/rules.json"
+}
+
+installRules() {
+  local preset="$1" rules="$2"
+  if [ ! -f "$rules" ]; then writeOnce "$preset" "$rules"; return; fi
+  local mode=""; [ "$IS_CHECK_ONLY" = "yes" ] && mode="check"
+  local outcome; outcome="$(python3 "$KIT/tools/managed_rules.py" "$rules" "$preset" $mode)"
+  if [ "$outcome" = "unchanged" ]; then report kept "$rules"; return; fi
+  noteChange
+  [ "$IS_CHECK_ONLY" = "yes" ] && outcome="would-$outcome"
+  report "$outcome" "$rules"
 }
 
 installWorkflows() {
@@ -170,8 +181,10 @@ printNextSteps() {
   say "push it and open the pull request into '$DEFAULT_BRANCH' — from now on nothing lands on '$DEFAULT_BRANCH'"
   say "from a Claude session except by a pull request: the block in CLAUDE.md says so and the hook in"
   say ".claude/settings.json (tools/branch_guard) refuses a commit or push that would. Nothing runs on"
-  say "GitHub — the audit, the gate and the round are the Claude scripts in .claude/skills (refactor-round,"
-  say "end-of-day); tools/refactor/deploys_since_baseline.sh says when a round is due. Optionally, in Your"
+  say "GitHub — the audit, the score, the gate and the round are the Claude scripts in .claude/skills: say"
+  say "'Run the code quality check' for the score box in the README and the refactoring plan, and 'Refactor"
+  say "the repo' to work the plan (code-quality-check, refactor-round, end-of-day);"
+  say "tools/refactor/deploys_since_baseline.sh says when a round is due. Optionally, in Your"
   say "Business Today: record the repository URL and the default branch ('$DEFAULT_BRANCH') on the project and"
   say "send push events to its GitHub webhook, and it raises 'REFACTOR: round N' on the project as the reminder."
 }

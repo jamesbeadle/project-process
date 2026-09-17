@@ -24,11 +24,20 @@ Nothing is committed to the default branch (`main`, or whatever `origin/HEAD` po
 
 The repository carries a guard as well as this rule: `tools/branch_guard/`, installed as a Claude Code `PreToolUse` hook in `.claude/settings.json`, refuses any `git commit`, `git merge` or `git push` that would land on the default branch and says why. When it refuses, do what it says — branch — rather than looking for a way round it.
 
-A refactor round follows the same shape on a `refactor/round-N` branch (its skill says so); it is the one branch that is neither a fix nor a feature.
+A refactor round follows the same shape on a `refactor/round-N` branch, and a code quality check on a `quality/check-<date>` branch (their skills say so); they are the two branches that are neither a fix nor a feature.
 
-## The code stays at the standard through Claude scripts, not CI
+## Two commands keep the code at the standard
 
-The repository carries `tools/refactor/` — an audit that measures the code against the rules below and a gate that fails when a ratcheted figure is worse than the committed baseline. Nothing runs on GitHub: the gate is run by the Claude scripts in `.claude/skills/` — `refactor-round` (one measured round: baseline first, worst files first, behaviour unchanged, baseline last) and `end-of-day` (the day's close: the round if one is due, the connector check, the plain-English summary on the day's tasks). A round is due when `tools/refactor/deploys_since_baseline.sh` says so: the commits on the default branch since the baseline was last committed, ten or more unless the project says otherwise. Your Business Today can also raise `REFACTOR: round N` on the project as the reminder when its own deploy count reaches N. Either way a person's Claude runs the round on a `refactor/round-N` branch, commits each verified step there, pushes it and opens the pull request for the person to review and merge — never on the default branch — and refactor rounds never add behaviour or change the schema.
+When the person says either of these, in these words or close to them, do what the named skill in `.claude/skills/` says — read its `SKILL.md` and follow it; do not improvise the process:
+
+- **"Run the code quality check"** → `code-quality-check`. Measures the repository, and on a `quality/check-<date>` branch writes a box at the bottom of `README.md` holding the code quality score (one percentage), with three things expandable beneath it: how the score is made up, the count of every file in the repository split by area, and the refactoring plan. It also writes `tools/refactor/refactor-plan.md` — the steps a refactor of this repository follows, in order. It changes no source code. One command does the measuring: `python3 -m tools.refactor.audit.quality_check .`
+- **"Refactor the repo"** → `refactor-round`. One measured round on a `refactor/round-N` branch that takes the next steps from the top of `tools/refactor/refactor-plan.md`, in order: component breakout, then utility function identification, then design pattern identification and modification, then the sweep to zero. Behaviour never changes. It ends by running the code quality check, so the pull request carries the new score and the plan for the round after.
+
+Both end as a pull request for the person to merge, never as a commit on the default branch.
+
+Behind them the repository carries `tools/refactor/` — an audit that measures the code against the rules below, a score made from every figure it takes, and a gate that fails when a ratcheted figure is worse than the committed baseline. Nothing runs on GitHub: the measuring is run by the skills — the two above, and `end-of-day` (the day's close: the round if one is due, the connector check, the plain-English summary on the day's tasks). A round is also due when `tools/refactor/deploys_since_baseline.sh` says so: the commits on the default branch since the baseline was last committed, ten or more unless the project says otherwise. Your Business Today can also raise `REFACTOR: round N` on the project as the reminder when its own deploy count reaches N. Refactor rounds never add behaviour or change the schema.
+
+The score is the measure of the rules below, so new code is written to score 100%: every rule in *How I Write Code* is one the audit counts. Before saying any piece of work is done, run the fast reading and the gate — `python3 -m tools.refactor.audit.run_audit . --output tools/refactor/audit-output --fast` then `python3 -m tools.refactor.audit.gate tools/refactor/baseline.json tools/refactor/audit-output/audit.json` — and fix what the work introduced.
 
 ## The rules travel with the repository
 

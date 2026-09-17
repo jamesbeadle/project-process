@@ -26,7 +26,9 @@
     "**/Migrations/**",
     "**/*.min.js",
     "**/*.d.ts",
-    "**/_to_delete/**"
+    "**/_to_delete/**",
+    "tools/refactor/**",
+    "tools/branch_guard/**"
   ],
   "maxFileLines": 100,
   "maxFunctionLines": 30,
@@ -64,5 +66,25 @@
   "functionNames": {
     "maxWords": 5,
     "maxLength": 40
+  },
+  "areas": [
+    {"name": "tests", "globs": ["**/*.test.*", "**/*.spec.*", "**/tests/**", "**/Tests/**", "**/*.Tests/**", "**/*Tests.cs"]},
+    {"name": "docs", "globs": ["**/*.md", "docs/**"]},
+    {"name": "tooling", "globs": ["tools/**", ".claude/**", "scripts/**"]},
+    {"name": "database", "globs": ["**/migrations/**", "**/Migrations/**", "**/*.sql"]},
+    {"name": "api", "globs": ["**/api/**", "**/Api/**", "**/controllers/**", "**/Controllers/**", "**/endpoints/**", "**/mcp/**"]},
+    {"name": "frontend", "globs": ["**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/components/**", "public/**", "static/**"]},
+    {"name": "backend", "globs": ["**/*.ts", "**/*.js", "**/*.py", "**/*.cs", "**/*.go", "**/*.java", "**/*.kt", "**/*.swift", "**/*.rb", "**/*.php"]},
+    {"name": "infrastructure", "globs": [".github/**", "infra/**", "**/*.tf", "**/*.bicep", "**/Dockerfile*", "*.json", "*.yml", "*.yaml", "*.toml", ".*"]}
+  ],
+  "designPatterns": {
+    "entityGlobs": [],
+    "minimumFamilySize": 4,
+    "cooccurrenceThreshold": 0.75,
+    "fileCountBand": 2.0,
+    "acceptedGaps": []
+  },
+  "score": {
+    "elements": {}
   }
 }
