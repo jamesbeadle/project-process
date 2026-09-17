@@ -51,7 +51,7 @@
     "forbidInlineStyleAttributes": true
   },
   "prose": {
-    "maxMemberAccessesPerLine": 3,
+    "maxMemberChainDepth": 2,
     "maxLineLength": 160,
     "maxIndentDepth": 5,
     "indentWidth": 4,
