@@ -29,7 +29,7 @@ def buildPlan(repositoryRoot: Path, audit: dict) -> dict:
     designPatterns = design_patterns.check(sourceFiles, rules)
     steps = [
         *breakoutSteps(views),
-        *utilitySteps(views, usage.declaredMoreThanOnce(), audit),
+        *utilitySteps(views, usage.repeatedBodies(), audit),
         *patternSteps(others, designPatterns),
         *sweepSteps(audit["score"]),
     ]

@@ -21,7 +21,10 @@ def sweepSteps(score: dict) -> list[dict]:
         {
             "pass": SWEEP,
             "title": f"{row['label']}: {row['offenders']:g} to zero",
-            "detail": f"Scores {row['score']:.1f}% at weight {row['weight']}; the offenders are in audit.json under details.{checkNameFor(row['key'])}, fifty at a time.",
+            "detail": (
+                f"Scores {row['score']:.1f}% at weight {row['weight']}; the offenders are in audit.json "
+                f"under details.{checkNameFor(row['key'])}, fifty at a time."
+            ),
         }
         for row in remaining
     ]

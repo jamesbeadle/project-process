@@ -132,7 +132,7 @@ A long frontend file is several components that have not been separated yet. Fin
 
 Ask two questions of every function, when writing it and when reading it:
 
-**Is this the right home for it?** If another component or file within the same design pattern could use the function, it is a utility, and it lives in a named, focused module — abstracted as far as that module's purpose requires and no further — where it can be reused. The same function declared in two files is one utility that has not been given its home yet. This is not premature abstraction: "just in case" is speculation about a user nobody can name; a utility is justified when the design pattern itself names who else will use it.
+**Is this the right home for it?** If another component or file within the same design pattern could use the function, it is a utility, and it lives in a named, focused module — abstracted as far as that module's purpose requires and no further — where it can be reused. The same function declared in two files is one utility that has not been given its home yet. Same means the same body or the same concept, never just the same name: every form having its own `onSubmit` is each component doing its own job, and folding those together would be abstraction for its own sake. This is not premature abstraction: "just in case" is speculation about a user nobody can name; a utility is justified when the design pattern itself names who else will use it.
 
 **Should it exist at all?** A function's existence has to be justified. Would a reader expect this function in the standard implementation of this kind of view, handler or module? If not, it is usually masking a bad implementation of something the framework should be handling — hand-rolled loading flags, binding, routing, validation, formatting, state synchronisation. Remove it by doing the thing the framework's way, not by tidying the workaround.
 
@@ -213,7 +213,7 @@ Things I never want to see in code you write for me:
 - Accessor functions that glue a type to its property (`getAppleColour()` instead of `apple.colour`), and function names over five words or forty characters.
 - Components that leave their functions behind in the parent, or reach back into it.
 - Functions that mask something the framework should be doing, and functions or components nothing calls.
-- The same function declared in more than one file.
+- The same function — the same body, not merely the same name — declared in more than one file.
 - A subject missing a file its design pattern predicts, or an empty file created to satisfy one.
 - Premature abstraction — extracting "just in case" before the second use exists or the design pattern names it.
 - Catch-all utility files (`utils.js`, `helpers.js`) — utilities go in named, focused modules.
