@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from ..score.elements import ELEMENTS
 
-SWEEP = "Pass 4 — The sweep to zero"
-HANDLED_BY_EARLIER_PASSES = {"filesOverLimit", "worstFile", "orphans", "predictedFiles", "entityFileCounts"}
+SWEEP = "Pass 5 — The sweep to zero"
+HANDLED_BY_EARLIER_PASSES = {"filesOverLimit", "worstFile", "orphans", "predictedFiles", "entityFileCounts", "handRolledWidgets"}
 
 
 def checkNameFor(elementKey: str) -> str:

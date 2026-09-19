@@ -76,6 +76,24 @@
     "fileCountBand": 2.0,
     "acceptedGaps": []
   },
+  "siteDefinition": {
+    "viewGlobs": ["**/*.svelte"],
+    "routeGlobs": ["**/routes/**/+page.svelte"],
+    "ignoredTags": [],
+    "catalogue": [],
+    "handRolled": [
+      {"element": "table", "ownedBy": "RecordsTable"},
+      {"element": "input", "ownedBy": "FormField", "unlessAttributes": ["type=\"checkbox\"", "type=\"radio\"", "type=\"file\"", "type=\"hidden\""]},
+      {"element": "select", "ownedBy": "FormField"},
+      {"element": "textarea", "ownedBy": "FormField"},
+      {"element": "h1", "ownedBy": "PageHeader"},
+      {"element": "h2", "ownedBy": "SectionHeader"},
+      {"element": "h3", "ownedBy": "SectionHeader"}
+    ],
+    "horizontalClasses": ["flex", "inline-flex"],
+    "verticalClasses": ["flex-col"],
+    "document": "tools/refactor/site-definition.md"
+  },
   "score": {
     "elements": {}
   }
