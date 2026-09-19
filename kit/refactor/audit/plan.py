@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .checks import design_patterns
 from .source_files import loadRules, resolveSourceFiles
+from .worklist.adoption_steps import adoptionSteps
 from .worklist.function_usage import FunctionUsage
 from .worklist.render import renderPlan
 from .worklist.steps import breakoutSteps, patternSteps, utilitySteps
@@ -29,6 +30,7 @@ def buildPlan(repositoryRoot: Path, audit: dict) -> dict:
     designPatterns = design_patterns.check(sourceFiles, rules)
     steps = [
         *breakoutSteps(views),
+        *adoptionSteps(audit),
         *utilitySteps(views, usage.repeatedBodies(), audit),
         *patternSteps(others, designPatterns),
         *sweepSteps(audit["score"]),
