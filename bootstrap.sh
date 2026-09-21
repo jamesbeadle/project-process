@@ -20,6 +20,7 @@ set -euo pipefail
 
 KIT_REPOSITORY="https://github.com/jamesbeadle/project-process"
 BRANCH_GUARD_COMMAND='python3 "${CLAUDE_PROJECT_DIR:-.}/tools/branch_guard"'
+PROCESS_SERVER_NAME="project-process"
 REPOSITORY=""
 KIT=""
 STACK=""
@@ -144,6 +145,23 @@ installWorkflows() {
   fi
 }
 
+installProcessServer() {
+  local target="$REPOSITORY/tools/mcp" file
+  for file in $(cd "$KIT/kit/mcp" && ls *.py | sort); do
+    writeIfDifferent "$KIT/kit/mcp/$file" "$target/$file"
+  done
+  writeIfDifferent "$KIT/kit/processes.json" "$target/processes.json"
+  local mode=""; [ "$IS_CHECK_ONLY" = "yes" ] && mode="check"
+  local outcome; outcome="$(python3 "$KIT/tools/managed_mcp.py" "$REPOSITORY/.mcp.json" \
+    "$PROCESS_SERVER_NAME" python3 "tools/mcp/server.py" $mode)"
+  case "$outcome" in
+    error:*) say "  $outcome"; exit 1 ;;
+    unchanged) ;;
+    *) noteChange; [ "$IS_CHECK_ONLY" = "yes" ] && outcome="would-$outcome" ;;
+  esac
+  report "$outcome" "$REPOSITORY/.mcp.json"
+}
+
 installSkills() {
   local skill
   for skill in $(cd "$KIT/kit/skills" && ls -d */ | tr -d /); do
@@ -228,6 +246,7 @@ main() {
   installRefactorKit
   installWorkflows
   installSkills
+  installProcessServer
   installBranchGuard
   establishBaseline
   if [ "$IS_CHECK_ONLY" = "yes" ]; then
