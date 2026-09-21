@@ -28,6 +28,7 @@ IS_CHECK_ONLY="no"
 WITH_CI_GATE="no"
 WITH_MIGRATION_GATE="no"
 CHANGED_COUNT=0
+INVALIDATED_FIGURES=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -121,7 +122,10 @@ installRules() {
   local preset="$1" rules="$2"
   if [ ! -f "$rules" ]; then writeOnce "$preset" "$rules"; return; fi
   local mode=""; [ "$IS_CHECK_ONLY" = "yes" ] && mode="check"
-  local outcome; outcome="$(python3 "$KIT/tools/managed_rules.py" "$rules" "$preset" $mode)"
+  local kitOwned="$KIT/kit/refactor/kit-owned.json"
+  local result; result="$(python3 "$KIT/tools/managed_rules.py" "$rules" "$preset" "$kitOwned" $mode)"
+  local outcome; outcome="$(printf '%s\n' "$result" | head -1)"
+  INVALIDATED_FIGURES="$(printf '%s\n' "$result" | tail -n +2)"
   if [ "$outcome" = "unchanged" ]; then report kept "$rules"; return; fi
   noteChange
   [ "$IS_CHECK_ONLY" = "yes" ] && outcome="would-$outcome"
@@ -162,13 +166,36 @@ installBranchGuard() {
   report "$outcome" "$REPOSITORY/.claude/settings.json"
 }
 
+noteMissingDuplicationTool() {
+  command -v jscpd >/dev/null 2>&1 || say "  note      jscpd is not installed; the duplication figure is skipped (npm install -g jscpd)"
+}
+
+measureRepository() {
+  (cd "$REPOSITORY" && python3 -m tools.refactor.audit.run_audit . --output tools/refactor/audit-output >/dev/null)
+}
+
+refreshInvalidatedFigures() {
+  local target="$REPOSITORY/tools/refactor"
+  noteChange
+  if [ "$IS_CHECK_ONLY" = "yes" ]; then report would-refresh "$target/baseline.json"; return; fi
+  noteMissingDuplicationTool
+  measureRepository
+  local outcome; outcome="$(python3 "$KIT/tools/managed_baseline.py" "$target/baseline.json" \
+    "$target/audit-output/audit.json" $INVALIDATED_FIGURES)"
+  report "$outcome" "$target/baseline.json"
+}
+
 establishBaseline() {
   local target="$REPOSITORY/tools/refactor"
-  if [ -f "$target/baseline.json" ]; then report kept "$target/baseline.json"; return; fi
+  if [ -f "$target/baseline.json" ]; then
+    if [ -z "$INVALIDATED_FIGURES" ]; then report kept "$target/baseline.json"; return; fi
+    refreshInvalidatedFigures
+    return
+  fi
   noteChange
   if [ "$IS_CHECK_ONLY" = "yes" ]; then report would-create "$target/baseline.json"; return; fi
-  command -v jscpd >/dev/null 2>&1 || say "  note      jscpd is not installed; the duplication figure is skipped in this baseline (npm install -g jscpd)"
-  (cd "$REPOSITORY" && python3 -m tools.refactor.audit.run_audit . --output tools/refactor/audit-output >/dev/null)
+  noteMissingDuplicationTool
+  measureRepository
   cp "$target/audit-output/audit.json" "$target/baseline.json"
   cp "$target/audit-output/audit-report.md" "$target/baseline-report.md"
   report created "$target/baseline.json"
