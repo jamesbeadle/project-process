@@ -55,6 +55,11 @@
     "indentWidth": 4,
     "indentedFileGlobs": ["src/**/*.ts", "src/**/*.svelte"]
   },
+  "frameworkHandlers": {
+    "namePatterns": ["^on[A-Z]", "^handle[A-Z]", "^On[A-Z]", "^Handle[A-Z]"],
+    "names": [],
+    "coincidenceLines": 12
+  },
   "functionNames": {
     "maxWords": 5,
     "maxLength": 40

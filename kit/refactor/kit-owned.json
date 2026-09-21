@@ -11,6 +11,8 @@
     "prose.freeChainPrefixes": ["prose.longMemberChainLines"],
     "prose.maxLineLength": ["prose.overlongLines"],
     "prose.maxIndentDepth": ["prose.deeplyIndentedLines"],
+    "frameworkHandlers.namePatterns": [],
+    "frameworkHandlers.coincidenceLines": [],
     "functionNames.maxWords": ["functionNames.overlongFunctionNames"],
     "functionNames.maxLength": ["functionNames.overlongFunctionNames"]
   }
