@@ -1,0 +1,17 @@
+{
+  "doctrine": {
+    "maxFileLines": ["fileLength.filesOverLimit", "fileLength.worstFileTimesOverLimit", "fileLength.limit"],
+    "maxFunctionLines": ["functionShape.functionsOverLimit", "functionShape.limit"],
+    "booleanPrefixes": ["naming.unprefixedBooleans"],
+    "bannedAbbreviations": ["naming.bannedAbbreviationHits"],
+    "duplication.minTokens": ["duplication.duplicatedPercentage"],
+    "styleTokens.forbidInlineHexColours": ["magicValues.inlineHexColours"],
+    "styleTokens.forbidInlineStyleAttributes": ["magicValues.inlineStyleAttributes"],
+    "prose.maxMemberChainDepth": ["prose.longMemberChainLines"],
+    "prose.freeChainPrefixes": ["prose.longMemberChainLines"],
+    "prose.maxLineLength": ["prose.overlongLines"],
+    "prose.maxIndentDepth": ["prose.deeplyIndentedLines"],
+    "functionNames.maxWords": ["functionNames.overlongFunctionNames"],
+    "functionNames.maxLength": ["functionNames.overlongFunctionNames"]
+  }
+}

@@ -58,6 +58,7 @@
   },
   "prose": {
     "maxMemberChainDepth": 1,
+    "freeChainPrefixes": ["this.", "base.", "self.", "import.meta."],
     "maxLineLength": 160,
     "maxIndentDepth": 5,
     "indentWidth": 4,
