@@ -143,7 +143,9 @@ Ask two questions of every function, when writing it and when reading it:
 **A long function is a contradiction in terms.** The entire point of a function is to break long content into small, named, understandable pieces — so a massive function is a function refusing to do its own job. There is no real reason for one to exist. **Soft limit: ~30 lines.** As with files, when a function approaches the limit the question is never "how do I make this fit" — it's "what have I failed to extract?" Almost always there's a smaller function, a utility, or a separately named step hiding inside. Extract until each function does one thing and its name says exactly what that thing is — then the parent function becomes a short sequence of named steps that reads like prose, which is the whole goal.
 
 - **Functions should be short.** If a function is long, it's doing too much. The extracted pieces don't need to be reused anywhere else to justify existing — a function whose only purpose is to give a name to one step of its caller has already earned its place.
-- **One dot per line (Law of Demeter, informally).** If you find yourself writing `order.customer.address.postcode.format()`, the structure is wrong. Either the data is poorly modelled or the operation belongs somewhere closer to the data. `apple.colour.hexCode` should be `Colours.getHexCode(apple.colour)`: the caller holds an apple and asks the thing that knows about colours, rather than walking through the apple's insides. What counts is the depth of one chain of properties, not how many dots a line has: a fluent pipeline of calls — `invoices.Where(…).Select(…).ToList()`, `items.filter(…).map(…)` — hands back something new at each step and is not a walk into anything, while `invoice.project.client.name` is, wherever it appears, including inside a lambda or in markup.
+- **One hop per line (Law of Demeter, informally).** A line may take one step into an object and no further. `apple.colour` is the whole allowance; `apple.colour.hexCode` is already too far, and `order.customer.address.postcode.format()` is a walk through three objects' insides to reach a fourth. The depth is the measure, not the dot count: a fluent pipeline of calls — `invoices.Where(…).Select(…).ToList()`, `items.filter(…).map(…)` — hands back something new at each step and is not a walk into anything, while `invoice.project.client.name` is, wherever it appears, including inside a lambda or in markup.
+
+  **The fix is to model the object, not to name the hop.** A chain is evidence that a type is missing a property or a method, so the first move is to give it one and let the caller ask: `apple.colour.hexCode` becomes `Colours.getHexCode(apple.colour)`, and `invoice.project.client.name` wants to be `invoice.clientName`. The caller holds an apple and asks the thing that knows about colours, rather than reaching through the apple to get at it. Only when the type is genuinely not yours to change — a framework object, a third-party model, generated code — does the chain become a named local instead: `var client = invoice.project.client;` above the line, then `client.name`, which is the same rule as naming the apple before the sentence that uses it. The local is the fallback and it is the weaker answer: two short lines satisfy the audit without the model getting any better, so a round that reaches for it everywhere has moved the problem rather than solved it.
 - **No arrow code.** Deep indentation is a visual smell — if the code is marching right across the page, the function is doing too much branching. It means a function should already have been called inside that block: the indented body is a named step that was never named. Extract, invert conditions, return early.
 - **Idempotent where possible.** A function called twice with the same input should behave the same way. Side effects should be obvious from the name (`saveUser`, not `processUser`).
 
@@ -208,7 +210,7 @@ Things I never want to see in code you write for me:
 - `else` blocks where an early return would do.
 - Comments explaining *what* the code does.
 - Code duplicated across files when the concept is the same.
-- Long method chains (`a.b.c.d.e`).
+- Member chains deeper than one hop (`a.b.c`), and splitting one into a local when the type was yours to model.
 - Conditions with calls tangled inside calls (`if (is(getApple(1).colour == "RED"))`), and comparisons against raw literals.
 - Accessor functions that glue a type to its property (`getAppleColour()` instead of `apple.colour`), and function names over five words or forty characters.
 - Components that leave their functions behind in the parent, or reach back into it.
@@ -231,9 +233,10 @@ Run through this checklist mentally:
 7. Did I introduce duplication? Did I introduce premature abstraction?
 8. Does each function do one thing its name describes?
 9. Does every condition read as a sentence — nothing fetched or computed inside it, nothing compared to a raw literal?
-10. Is every function in the right home, and is its existence justified — not a utility stranded in a view, not a workaround for the framework, not uncalled?
-11. Does every new file sit where the codebase's design patterns predict it, named as its siblings are, and did I add every file the pattern predicts for what I added?
-12. Would the code quality score fall because of this change? Run the fast audit and the gate if the repository carries them.
+10. Does every line take at most one hop into an object, and did I model the type rather than reach for a local?
+11. Is every function in the right home, and is its existence justified — not a utility stranded in a view, not a workaround for the framework, not uncalled?
+12. Does every new file sit where the codebase's design patterns predict it, named as its siblings are, and did I add every file the pattern predicts for what I added?
+13. Would the code quality score fall because of this change? Run the fast audit and the gate if the repository carries them.
 
 If any answer is "no" or "I'm not sure", fix it before saying you're done.
 
