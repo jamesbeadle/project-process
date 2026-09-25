@@ -90,6 +90,13 @@
     "fileCountBand": 2.0,
     "acceptedGaps": []
   },
+  "inputValidation": {
+    "schemaGlobs": ["**/migrations/**/*.sql", "**/Migrations/*.cs", "**/*.sql"],
+    "entryPointGlobs": ["**/routes/**", "**/api/**", "**/controllers/**", "**/Controllers/**", "**/handlers/**", "**/mcp/**", "**/Mcp/**", "**/*Controller.*", "**/*Handler.*", "**/*.server.*"],
+    "writePatterns": ["\\.from\\(\\s*['\\\"`](?P<table>\\w+)['\\\"`]\\s*\\)\\s*\\.(?:insert|update|upsert)\\(", "\\.(?P<table>\\w+)\\.(?:create|createMany|update|updateMany|upsert)\\(", "\\.(?P<table>\\w+)\\s*\\.\\s*(?:Add|AddRange|AddAsync|Attach)\\(", "insert\\s+into\\s+(?:\\w+\\.)?[\\\"`\\[]?(?P<table>\\w+)", "\\bupdate\\s+(?:\\w+\\.)?[\\\"`\\[]?(?P<table>\\w+)[\\\"`\\]]?\\s+set\\b"],
+    "validatorPatterns": ["\\bz\\.(?:object|string|number|enum|coerce)\\b", "\\byup\\.", "\\bJoi\\.", "\\.safeParse\\(", "\\bBaseModel\\b", "\\bconstr\\(", "AbstractValidator<", "\\bRuleFor\\(", "\\[(?:MaxLength|StringLength|Range|Required)\\b", "\\bvalidate[A-Z_]\\w*\\("],
+    "exemptGlobs": []
+  },
   "score": {
     "elements": {}
   }

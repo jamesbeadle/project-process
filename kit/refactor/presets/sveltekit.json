@@ -100,6 +100,13 @@
     "verticalClasses": ["flex-col"],
     "document": "tools/refactor/site-definition.md"
   },
+  "inputValidation": {
+    "schemaGlobs": ["supabase/migrations/**/*.sql", "**/migrations/**/*.sql", "**/schema.sql"],
+    "entryPointGlobs": ["src/routes/**/+server.ts", "src/routes/**/+page.server.ts", "src/routes/**/+layout.server.ts", "src/lib/server/mcp/**/*.ts"],
+    "writePatterns": ["\\.from\\(\\s*['\\\"`](?P<table>\\w+)['\\\"`]\\s*\\)\\s*\\.(?:insert|update|upsert)\\(", "\\.insert\\(\\s*(?P<table>\\w+)\\s*\\)\\s*\\.values\\(", "\\.update\\(\\s*(?P<table>\\w+)\\s*\\)\\s*\\.set\\(", "\\.(?P<table>\\w+)\\.(?:create|createMany|update|updateMany|upsert)\\(", "insert\\s+into\\s+(?:\\w+\\.)?[\\\"`\\[]?(?P<table>\\w+)", "\\bupdate\\s+(?:\\w+\\.)?[\\\"`\\[]?(?P<table>\\w+)[\\\"`\\]]?\\s+set\\b"],
+    "validatorPatterns": ["\\bz\\.(?:object|string|number|enum|coerce)\\b", "\\bv\\.(?:object|string|pipe)\\(", "\\byup\\.", "\\bJoi\\.", "superValidate\\(", "\\.safeParse\\(", "\\bnew Ajv\\b", "\\bvalidate[A-Z]\\w*\\("],
+    "exemptGlobs": []
+  },
   "score": {
     "elements": {}
   }
