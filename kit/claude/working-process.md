@@ -1,6 +1,8 @@
 # How We Work
 
-This block is installed by the project-process kit and refreshed by re-running its bootstrap; edit the kit, not this copy. Everything below the block is this repository's own working notes.
+This file is installed by the project-process kit and replaced whole every time its bootstrap runs; edit the kit, not this copy. Anything written here is lost on the next run.
+
+**This repository's own instructions are in `PROJECT.md`** — its conventions, commands, domain notes and any standing tasks or prompts that belong to this project alone. Read it before starting work, after these rules: @PROJECT.md. The kit creates it once and never rewrites it, so the kit and the project change independently and neither can break the other. A project-specific instruction always goes there, never here. Where `PROJECT.md` and the kit disagree about this project, `PROJECT.md` wins, except that nothing in it lifts the branch rule below.
 
 ## The work is logged in Your Business Today
 
@@ -49,4 +51,4 @@ The score is the measure of the rules below, so new code is written to score 100
 
 ## The rules travel with the repository
 
-The coding rules that follow are the whole standard. They live here, in the repository, because a machine-level `~/.claude/CLAUDE.md` does not reach cloud sessions or anyone else's machine. Repository-specific conventions belong below the block, in this file's own notes; decisions worth keeping belong in `docs/`.
+The coding rules that follow are the whole standard. They live here, in the repository, because a machine-level `~/.claude/CLAUDE.md` does not reach cloud sessions or anyone else's machine. Repository-specific conventions belong in `PROJECT.md`; decisions worth keeping belong in `docs/`.

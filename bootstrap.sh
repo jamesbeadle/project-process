@@ -99,11 +99,18 @@ installClaudeBlock() {
   printf '\n' >> "$body"
   cat "$KIT/kit/claude/code-rules.md" >> "$body"
   local mode=""; [ "$IS_CHECK_ONLY" = "yes" ] && mode="check"
-  local outcome; outcome="$(python3 "$KIT/tools/managed_block.py" "$REPOSITORY/CLAUDE.md" "$body" "$(cat "$KIT/VERSION")" $mode)"
+  local outcomes; outcomes="$(python3 "$KIT/tools/managed_block.py" "$REPOSITORY/CLAUDE.md" "$body" "$(cat "$KIT/VERSION")" \
+    "$REPOSITORY/PROJECT.md" "$KIT/kit/claude/project.md" $mode)"
+  reportInstruction "${outcomes% *}" "$REPOSITORY/CLAUDE.md"
+  reportInstruction "${outcomes#* }" "$REPOSITORY/PROJECT.md"
+  rm -f "$body"
+}
+
+reportInstruction() {
+  local outcome="$1" destination="$2"
   if [ "$outcome" != "unchanged" ]; then noteChange; fi
   if [ "$IS_CHECK_ONLY" = "yes" ] && [ "$outcome" != "unchanged" ]; then outcome="would-$outcome"; fi
-  report "$outcome" "$REPOSITORY/CLAUDE.md"
-  rm -f "$body"
+  report "$outcome" "$destination"
 }
 
 installRefactorKit() {
@@ -222,16 +229,17 @@ establishBaseline() {
 
 printNextSteps() {
   say ""
+  say "Project-specific instructions go in PROJECT.md: CLAUDE.md is the kit's and is replaced on every run."
   say "Next: commit what was written on a branch (git switch -c feature/project-process-$(cat "$KIT/VERSION")),"
   say "push it and open the pull request into '$DEFAULT_BRANCH' — from now on nothing lands on '$DEFAULT_BRANCH'"
-  say "from a Claude session except by a pull request: the block in CLAUDE.md says so and the hook in"
+  say "from a Claude session except by a pull request: CLAUDE.md says so and the hook in"
   say ".claude/settings.json (tools/branch_guard) refuses a commit or push that would. Nothing runs on"
   say "GitHub — the audit, the score, the gate and the round are the Claude scripts in .claude/skills: say"
   say "'Run the code quality check' for the score box in the README and the refactoring plan, 'Run the widget"
   say "identification' for the site definition alone (read-only, no branch), and 'Refactor the repo' to work the"
   say "plan; 'Run the input validation check' reads every door that writes against its columns (read-only)"
   say "(code-quality-check, widget-identification, input-validation-check, refactor-round, end-of-day,"
-  say "widget-design); every process is asked for by one of the sentences the CLAUDE.md block lists,"
+  say "widget-design); every process is asked for by one of the sentences CLAUDE.md lists,"
   say "and nothing else runs one;"
   say "tools/refactor/deploys_since_baseline.sh says when a round is due. Optionally, in Your"
   say "Business Today: record the repository URL and the default branch ('$DEFAULT_BRANCH') on the project and"
