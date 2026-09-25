@@ -138,6 +138,15 @@ Ask two questions of every function, when writing it and when reading it:
 
 **Nothing is left uncalled.** A component or function that nothing calls is deleted, not kept for later. Version control is where old code lives.
 
+## Inputs Are Checked Where They Enter
+
+A value that will be stored is checked against what its store accepts, at every door it can come in by, before it is written. The store's own shape is the contract — a column's type, length, range, precision and scale, nullability, format and allowed values — and the check reads that contract rather than inventing a looser or a different one.
+
+- **The service is the guard.** Every entry point that leads to a write — an API route, a server action, a command handler, a message consumer, an import, an MCP tool or action handler — checks every value itself, at its gate, before any domain logic runs. Anything can call it without passing through a form, so nothing in front of it counts toward its safety. An agent calling an MCP tool never sees the frontend; the handler has to be enough on its own.
+- **The form mirrors it for the user.** The same limits sit on the input the user types into — length, range, step, required, pattern, the list of choices — so the problem is shown before submitting. That is usability, never the guard: a form check with no service check behind it is a finding.
+- **Reject, never repair.** A value that does not fit is refused with an error naming the field and the limit. It is never truncated, rounded, clamped or coerced quietly, and the store is never the first thing to complain.
+- **The limits are stated once.** They are derived from the schema, or declared once beside it, and the service and the form both read that statement. The same `200` typed into a validator, a form and a migration is three limits waiting to drift apart.
+
 ## Function Size and Shape
 
 **A long function is a contradiction in terms.** The entire point of a function is to break long content into small, named, understandable pieces — so a massive function is a function refusing to do its own job. There is no real reason for one to exist. **Soft limit: ~30 lines.** As with files, when a function approaches the limit the question is never "how do I make this fit" — it's "what have I failed to extract?" Almost always there's a smaller function, a utility, or a separately named step hiding inside. Extract until each function does one thing and its name says exactly what that thing is — then the parent function becomes a short sequence of named steps that reads like prose, which is the whole goal.
@@ -217,6 +226,7 @@ Things I never want to see in code you write for me:
 - Functions that mask something the framework should be doing, and functions or components nothing calls.
 - The same function — the same body, not merely the same name — declared in more than one file.
 - A subject missing a file its design pattern predicts, or an empty file created to satisfy one.
+- An entry point that writes a value without checking it against its column, a check that lives only on the form, and an input quietly truncated or coerced to fit.
 - Premature abstraction — extracting "just in case" before the second use exists or the design pattern names it.
 - Catch-all utility files (`utils.js`, `helpers.js`) — utilities go in named, focused modules.
 
@@ -236,7 +246,8 @@ Run through this checklist mentally:
 10. Does every line take at most one hop into an object, and did I model the type rather than reach for a local?
 11. Is every function in the right home, and is its existence justified — not a utility stranded in a view, not a workaround for the framework, not uncalled?
 12. Does every new file sit where the codebase's design patterns predict it, named as its siblings are, and did I add every file the pattern predicts for what I added?
-13. Would the code quality score fall because of this change? Run the fast audit and the gate if the repository carries them.
+13. Is every value I write checked against its column at every entry point that writes it — the API, the handler, the MCP tool — rejected rather than repaired, with the form mirroring the same limits?
+14. Would the code quality score fall because of this change? Run the fast audit and the gate if the repository carries them.
 
 If any answer is "no" or "I'm not sure", fix it before saying you're done.
 
